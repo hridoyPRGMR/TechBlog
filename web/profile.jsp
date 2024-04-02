@@ -1,6 +1,11 @@
 <%@page import="com.tech.blog.entities.User"%>
 <%@page errorPage="error_page.jsp"%>
 <%@page import="com.tech.blog.entities.Message"%>
+<%@page import="com.tech.blog.entities.Category"%>
+<%@page import="com.tech.blog.dao.PostDao"%>
+<%@page import="com.tech.blog.helper.ConnectionProvider"%>
+<%@ page import="java.util.ArrayList" %>
+
 
 <%
     User user = (User) session.getAttribute("currentUser");
@@ -55,6 +60,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#"><span class="fa fa-phone-square"></span> Contact Us</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#do-post-modal"><span class="fa fa-upload"></span> Do Post</a>
+                        </li>
                     </ul>
 
                     <ul class="navbar-nav mr-right">
@@ -73,9 +81,9 @@
             Message msg = (Message) session.getAttribute("msg");
             if (msg != null) {
         %>
-            <div class="alert <%=msg.getCssClass()%>" role="alert">
-                <%= msg.getContent()%>
-            </div>
+        <div class="alert <%=msg.getCssClass()%>" role="alert">
+            <%= msg.getContent()%>
+        </div>
         <%  
             session.removeAttribute("msg");
             }
@@ -161,8 +169,6 @@
                                     </div>
                                 </form>
                             </div>
-
-
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -172,6 +178,57 @@
                 </div>
             </div>
         </div>
+
+        <!--Post Modal -->
+        <div class="modal fade" id="do-post-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content" style="background-color: #fff; color: #000;">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Provide the post details.</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="add-post-form" name="add-post-form" action="AddPostServlet" method="POST">
+                            <div class="form-group">
+                                <select class="form-control" name="cid">
+                                    <option selected disabled>---Select Category---</option>
+                                    <% 
+                                        PostDao postDao = new PostDao(ConnectionProvider.getConnection());
+                                        ArrayList<Category> list = postDao.getCategories();
+                                        for(Category c : list) { 
+                                    %>
+                                    <option value="<%=c.getCid()%>"><%= c.getName() %></option>
+                                    <% } %>
+                                    <!-- Add other options if needed -->
+                                </select>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <input name="postTitle" type="text" placeholder="Enter post title" class="form-control">
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <textarea name="postContent" class="form-control" placeholder="Enter your content" style="height:120px"></textarea>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <textarea name="postCode" class="form-control" placeholder="Enter your code(If any)" style="height:120px"></textarea>
+                            </div>
+                            <br>
+                            <div class="form-group">
+                                <label>Select Photo</label>
+                                <input name="pic" type="file">
+                            </div>
+                            <div class="container text-center mt-1">
+                                <button type="submit" class="btn btn-primary">Post</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <!-- JavaScript Dependencies -->
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
@@ -193,8 +250,36 @@
                         editStatus = false;
                         $(this).text("Edit");
                     }
-                })
+                });
             });
+        </script>
+
+        <!--post js-->
+        <script>
+            $(document).ready(function (e) {
+                $("#add-post-form").on("submit", function (event) {
+                    event.preventDefault();
+                    console.log("you have clicked on post button");
+                    let form = new FormData(this);
+
+                    $.ajax({
+                        url: "AddPostServlet",
+                        type: 'POST',
+                        data: form,
+                        success: function (data, textStatus, jqXHR) {
+                            // Function to be executed if the request succeeds
+
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            // Function to be executed if the request fails
+
+                        },
+                        processData: false,
+                        contentType: false
+                    });
+                });
+            });
+
         </script>
 
     </body>
