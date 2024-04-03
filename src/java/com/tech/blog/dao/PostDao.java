@@ -65,7 +65,7 @@ public class PostDao {
         List<Posts> list = new ArrayList<>();
         // fetch all posts
         try {
-            String query = "SELECT * FROM posts";
+            String query = "SELECT * FROM posts ORDER BY pid DESC";
             PreparedStatement pstmt = con.prepareStatement(query);
             ResultSet set = pstmt.executeQuery();
 

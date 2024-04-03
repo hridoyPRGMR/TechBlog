@@ -70,6 +70,9 @@ public class Posts {
     }
 
     public String getPostPic() {
+        if(postPic.length()<1){
+            return "default.jpg";
+        }
         return postPic;
     }
 
