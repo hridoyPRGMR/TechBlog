@@ -89,6 +89,47 @@
             }
         %>                   
 
+        <!--main body of the page started-->
+
+        <main>
+            <div class="container">
+                <div class="row mt-4">
+                    <!--first column-->
+                    <div class="col-md-4">
+                        <!--categories-->
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+                                All Post
+                            </a>
+                            <%
+                                PostDao dao=new PostDao(ConnectionProvider.getConnection());
+                                ArrayList<Category>list1=dao.getCategories();
+                                for(Category cc:list1){
+                            %>
+                            <a href="#" class="list-group-item list-group-item-action"><%=cc.getName()%></a>
+                            <%
+                        }
+                            %>
+                            <!--<a href="#" class="list-group-item list-group-item-action disabled" tabindex="-1" aria-disabled="true">A disabled link item</a>-->
+                        </div>
+                    </div>
+                    <!--second column-->
+                    <div class="col-md-8">
+                        <!--post-->
+                        <div class="container text-center" id="loader">
+                            <i class="fa fa-refresh fa-3x fa-spin"></i>
+                            <h4 class="mt-2">Loading...</h4>
+                        </div>
+                        <div class="container-fluid" id="post-container">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!--main body of the page end-->
+
         <!-- Profile Modal -->
         <div class="modal fade" id="profile-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-top">
@@ -234,6 +275,7 @@
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="js/myjs.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
         <script>
             $(document).ready(function () {
@@ -256,30 +298,54 @@
 
         <!--post js-->
         <script>
-            $(document).ready(function (e) {
+            $(document).ready(function () {
                 $("#add-post-form").on("submit", function (event) {
-                    event.preventDefault();
-                    console.log("you have clicked on post button");
+                    event.preventDefault(); // Prevents the default form submission behavior
+
+                    // Creates a new FormData object from the form with id "add-post-form"
                     let form = new FormData(this);
 
+                    // Ajax call
                     $.ajax({
-                        url: "AddPostServlet",
-                        type: 'POST',
-                        data: form,
-                        success: function (data, textStatus, jqXHR) {
-                            // Function to be executed if the request succeeds
-
+                        url: "AddPostServlet", // URL to which the request is sent
+                        type: 'POST', // HTTP method (POST in this case)
+                        data: form, // Data to be sent to the server (form data)
+                        success: function (data, textStatus, jqXHR) { // Success callback function
+                            // Executes if the request succeeds
+                            if (data.trim() === 'done') {
+                                // Display success message using SweetAlert
+                                swal("Good job!", "Post saved successfully", "success");
+                            } else {
+                                // Display error message using SweetAlert
+                                swal("Error!", "Sorry something went wrong", "error");
+                            }
                         },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            // Function to be executed if the request fails
-
+                        error: function (jqXHR, textStatus, errorThrown) { // Error callback function
+                            // Executes if the request fails
+                            // Display error message using SweetAlert
+                            swal("Error!", "Sorry something went wrong", "error");
                         },
-                        processData: false,
-                        contentType: false
+                        processData: false, // Ensures that FormData is not processed as a query string
+                        contentType: false // Ensures correct content type for FormData
                     });
                 });
             });
 
+
+        </script>
+        <!--loading post using ajax-->
+
+        <script>
+            $(document).ready(function (e){
+                $.ajax({
+                   url:"load_post.jsp",
+                   success:function(data,textStatus,jqXHR){
+                      console.log(data); 
+                      $("#loader").hide();
+                      $("#post-container").html(data);
+                   }
+                });
+            });
         </script>
 
     </body>
