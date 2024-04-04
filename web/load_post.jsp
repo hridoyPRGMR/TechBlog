@@ -5,8 +5,22 @@
 
 <div class="row">
     <%
+        Thread.sleep(1000);//that should be remove before host...its used for loading
         PostDao dao = new PostDao(ConnectionProvider.getConnection());
-        List<Posts> posts = dao.getAllPost();
+        int cid=Integer.parseInt(request.getParameter("cid"));
+        List<Posts>posts=null;
+        if(cid==0){
+            posts = dao.getAllPost();
+        }
+        else{
+            posts=dao.getPostByCatId(cid);
+        }
+        
+        if(posts.size()==0){
+            out.println("<h4 class=display-3 text-center>NO posts available in this category</h4>");
+            return;
+        }
+        
         for (Posts p : posts) {
     %>
     <div class="col-md-6">

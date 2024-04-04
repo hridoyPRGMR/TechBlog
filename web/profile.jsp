@@ -98,7 +98,7 @@
                     <div class="col-md-4">
                         <!--categories-->
                         <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action active" aria-current="true">
+                            <a href="#" onclick="getPosts(0)" class="list-group-item list-group-item-action active" aria-current="true">
                                 All Post
                             </a>
                             <%
@@ -106,7 +106,7 @@
                                 ArrayList<Category>list1=dao.getCategories();
                                 for(Category cc:list1){
                             %>
-                            <a href="#" class="list-group-item list-group-item-action"><%=cc.getName()%></a>
+                            <a href="#" onclick="getPosts(<%=cc.getCid()%>)" class="list-group-item list-group-item-action"><%=cc.getName()%></a>
                             <%
                         }
                             %>
@@ -121,7 +121,7 @@
                             <h4 class="mt-2">Loading...</h4>
                         </div>
                         <div class="container-fluid" id="post-container">
-                            
+
                         </div>
                     </div>
                 </div>
@@ -278,22 +278,22 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
         <script>
-            $(document).ready(function () {
-                let editStatus = false;
-                $('#edit-profile-button').click(function () {
-                    if (editStatus === false) {
-                        $("#profile-details").hide();
-                        $("#profile-edit").show();
-                        editStatus = true;
-                        $(this).text("Back");
-                    } else {
-                        $("#profile-details").show();
-                        $("#profile-edit").hide();
-                        editStatus = false;
-                        $(this).text("Edit");
-                    }
-                });
-            });
+                                $(document).ready(function () {
+                                    let editStatus = false;
+                                    $('#edit-profile-button').click(function () {
+                                        if (editStatus === false) {
+                                            $("#profile-details").hide();
+                                            $("#profile-edit").show();
+                                            editStatus = true;
+                                            $(this).text("Back");
+                                        } else {
+                                            $("#profile-details").show();
+                                            $("#profile-edit").hide();
+                                            editStatus = false;
+                                            $(this).text("Edit");
+                                        }
+                                    });
+                                });
         </script>
 
         <!--post js-->
@@ -336,15 +336,22 @@
         <!--loading post using ajax-->
 
         <script>
-            $(document).ready(function (e){
+            function getPosts(catId) {
+                $("#loader").show();
+                $("#post-container").hide();
                 $.ajax({
-                   url:"load_post.jsp",
-                   success:function(data,textStatus,jqXHR){
-                      console.log(data); 
-                      $("#loader").hide();
-                      $("#post-container").html(data);
-                   }
+                    url: "load_post.jsp",
+                    data: {cid: catId},
+                    success: function (data, textStatus, jqXHR) {
+                        console.log(data);
+                        $("#loader").hide();
+                        $("#post-container").show(); // Fixed typo here
+                        $("#post-container").html(data);
+                    }
                 });
+            }
+            $(document).ready(function (e) {
+                getPosts(0);
             });
         </script>
 
