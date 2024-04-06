@@ -26,6 +26,11 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <style>
             /* Add your custom styles here */
+            body{
+                background: url(img/bg.jpg);
+                background-size: cover;
+                background-attachment: fixed;
+            }
             .profile-modal-header {
                 background-color: #343a40;
                 color: white;
@@ -98,7 +103,7 @@
                     <div class="col-md-4">
                         <!--categories-->
                         <div class="list-group">
-                            <a href="#" onclick="getPosts(0)" class="list-group-item list-group-item-action active" aria-current="true">
+                            <a href="#" onclick="getPosts(0,this)" class="c-link list-group-item list-group-item-action active" aria-current="true">
                                 All Post
                             </a>
                             <%
@@ -106,7 +111,7 @@
                                 ArrayList<Category>list1=dao.getCategories();
                                 for(Category cc:list1){
                             %>
-                            <a href="#" onclick="getPosts(<%=cc.getCid()%>)" class="list-group-item list-group-item-action"><%=cc.getName()%></a>
+                            <a href="#" onclick="getPosts(<%=cc.getCid()%>,this)" class="c-link list-group-item list-group-item-action"><%=cc.getName()%></a>
                             <%
                         }
                             %>
@@ -336,9 +341,13 @@
         <!--loading post using ajax-->
 
         <script>
-            function getPosts(catId) {
+            function getPosts(catId,temp) {
                 $("#loader").show();
                 $("#post-container").hide();
+                
+                $(".c-link").removeClass('active');
+                
+                
                 $.ajax({
                     url: "load_post.jsp",
                     data: {cid: catId},
@@ -347,11 +356,13 @@
                         $("#loader").hide();
                         $("#post-container").show(); // Fixed typo here
                         $("#post-container").html(data);
+                        $(temp).addClass('active');
                     }
                 });
             }
             $(document).ready(function (e) {
-                getPosts(0);
+                let allPostRef=$('.c-link')[0];
+                getPosts(0,allPostRef);
             });
         </script>
 
