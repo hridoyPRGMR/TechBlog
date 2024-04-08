@@ -1,10 +1,15 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.tech.blog.dao.PostDao" %>
+<%@ page import="com.tech.blog.dao.LikeDao"%>
 <%@ page import="com.tech.blog.entities.Posts" %>
+<%@ page import="com.tech.blog.entities.User" %>
 <%@ page import="com.tech.blog.helper.ConnectionProvider" %>
 
 <div class="row">
     <%
+        
+        User user=(User)session.getAttribute("currentUser");
+        
         Thread.sleep(1000);//that should be remove before host...its used for loading
         PostDao dao = new PostDao(ConnectionProvider.getConnection());
         int cid=Integer.parseInt(request.getParameter("cid"));
@@ -34,7 +39,10 @@
             </div>
             <div class="card-footer text-center bg-dark">
                 <a href="show_post.jsp?post_id=<%=p.getPostId()%>" class="btn btn-outline-light btn-sm">Read More...</a>
-                <a href="#!" class="btn btn-outline-light btn-sm"><i class="fa fa-thumbs-o-up"></i><span> 10</span></a>
+                <%
+                  LikeDao ld=new LikeDao(ConnectionProvider.getConnection());           
+               %>
+                <a href="#!"  class="btn btn-outline-light btn-sm"><i class="fa fa-thumbs-o-up"></i><span class="like-counter"><%=ld.countLikeOnPost(p.getPostId())%></span></a>
                 <a href="#!" class="btn btn-outline-light btn-sm"><i class="fa fa-commenting-o"></i><span> 20</span></a>
             </div>
         </div>

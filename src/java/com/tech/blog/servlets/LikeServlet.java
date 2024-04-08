@@ -1,31 +1,44 @@
 package com.tech.blog.servlets;
 
-import com.tech.blog.entities.Message;
+import com.tech.blog.dao.LikeDao;
+import com.tech.blog.helper.ConnectionProvider;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
-public class LogoutServelt extends HttpServlet {
 
+public class LikeServlet extends HttpServlet {
+
+   
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            HttpSession s=request.getSession();
-            s.removeAttribute("currentUser");
-            Message m=new Message("Logout Successfully","success","alert-success");
-            s.setAttribute("msg",m);
-            response.sendRedirect("login.jsp");
+            String operation=request.getParameter("operation");
+            int uid=Integer.parseInt(request.getParameter("uid"));
+            int pid=Integer.parseInt(request.getParameter("pid"));  
             
-        }catch(Exception e){
-            e.printStackTrace();
+            LikeDao ld=new LikeDao(ConnectionProvider.getConnection());
+            
+            if(operation.equals("like")){
+                if(ld.insertLike(pid, uid)){
+                    out.println("ok");
+                }
+            }
+            
+            if(operation.equals("unlike")){
+                if(ld.unlikePost(pid, uid)){
+                    out.println("ok");
+                }
+            }
+            
         }
     }
 
+   
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
