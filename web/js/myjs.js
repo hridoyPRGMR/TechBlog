@@ -1,5 +1,5 @@
 function doLike(pid, uid) {
-    
+
     const requestData = {
         uid: uid,
         pid: pid,
@@ -9,14 +9,14 @@ function doLike(pid, uid) {
     $.ajax({
         url: 'LikeServlet',
         data: requestData,
-        success: function(data,textStatus,jqXHR) {
-            if(data.trim()==="ok"){
-                let c=$(".like-counter").html();
+        success: function (data, textStatus, jqXHR) {
+            if (data.trim() === "ok") {
+                let c = $(".like-counter").html();
                 c++;
                 $('.like-counter').html(c);
             }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function (jqXHR, textStatus, errorThrown) {
             console.log('AJAX Error:', errorThrown);
         }
     });
@@ -32,17 +32,21 @@ function doUnLike(pid, uid) {
     $.ajax({
         url: 'LikeServlet',
         data: requestData,
-        success: function(data,textStatus,jqXHR) {
+        success: function (data, textStatus, jqXHR) {
             if (data.trim() === 'ok') {
-                let c=$(".like-counter").html();
+                let c = $(".like-counter").html();
                 c--;
                 $('.like-counter').html(c);
             } else {
                 console.log('Error: Unexpected response from server');
             }
         },
-        error: function(jqXHR, textStatus, errorThrown) {
+        error: function (jqXHR, textStatus, errorThrown) {
             console.log('AJAX Error:', errorThrown);
         }
     });
 }
+
+
+//comment
+

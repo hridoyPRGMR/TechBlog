@@ -3,10 +3,12 @@
 <%@page import="com.tech.blog.entities.User"%>
 <%@page import="com.tech.blog.entities.Posts"%>
 <%@page import="com.tech.blog.entities.Category"%>
+<%@page import="com.tech.blog.entities.Comments"%>
 <%@page import="com.tech.blog.helper.ConnectionProvider"%>
 <%@page import="com.tech.blog.dao.PostDao"%>
 <%@page import="com.tech.blog.dao.UserDao"%>
 <%@page import="com.tech.blog.dao.LikeDao"%>
+<%@page import="com.tech.blog.dao.CommentDao"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.util.Locale"%>
@@ -140,7 +142,7 @@
                                 LikeDao ld = new LikeDao(ConnectionProvider.getConnection());
                                 int pid = post.getPostId(); // Assuming post.getPostId() retrieves the post ID
                                 int uid = user.getId();     // Assuming user.getId() retrieves the user ID
-                          %>
+                            %>
 
                             <div class="post">
                                 <a href="#!" onclick="doLike(<%= pid %>, <%= uid %>)" class="btn btn-outline-light btn-sm">
@@ -150,23 +152,80 @@
                                 <a href="#!" onclick="doUnLike(<%= pid %>, <%= uid %>)" class="btn btn-outline-light btn-sm">
                                     <i class="fa fa-thumbs-o-down"></i>
                                 </a>
-                                <a href="#!" class="btn btn-outline-light btn-sm">
+                                <a href="#!" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#comment-modal">
                                     <i class="fa fa-commenting-o"></i>
                                     <span> 20</span> <!-- Replace with actual comment count -->
                                 </a>
                             </div>
                         </div>
 
-                        <%--
-                    <div class="card-footer">
-                        <div class="fb-comments" data-href="http://localhost:9494/TechBlog/show_post.jsp?post_id=<%=post.getPostId()%>" data-width="300px" data-numposts="10"></div>
-                    </div>
-                        --%>
+                        <div class="card-footer">
+                            <form id="commentForm">
+                                <!-- Hidden fields for pid and uid -->
+                                <input type="hidden" name="pid" value="<%= pid %>">
+                                <input type="hidden" name="uid" value="<%= uid %>">
+
+                                <!-- Comment input -->
+                                <div class="mb-3">
+                                    <label for="commentInput" class="form-label">Share your Thought</label>
+                                    <input type="text" class="form-control" name="comment" id="commentInput" aria-describedby="commentHelp">
+                                </div>
+
+                                <!-- Submit button -->
+                                <button type="submit" id="submitComment" class="btn btn-outline-dark">Comment</button>
+                            </form>
+                        </div>
+
+
                     </div>
                 </div>
             </div>
         </div>
         <!--end of main content-->
+
+        <!-- Comment Modal started-->
+
+        <div class="modal fade" id="comment-modal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="commentModalLabel">Comments</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="commentsContainer">
+                        <%
+                            CommentDao cDao = new CommentDao(ConnectionProvider.getConnection());
+                            ArrayList<Comments> comments = cDao.getComments();
+
+                            for (Comments c : comments) {
+                      %>
+                                    <div class="card mb-3" style="max-width: 440px;">
+                                        <div class="row g-0">
+                                            <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                                <img src="img/<%= ud.getUserByUserId(c.getUid()).getProfile() %>"  class="img-fluid rounded-circle" style="width: 60px; height: 60px;" alt="Profile Image">
+                                            </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <h5 class="card-title"><%= ud.getUserByUserId(c.getUid()).getName() %></h5>
+                                                <p class="card-text"><%= c.getComment() %></p>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                        <%
+                            }
+                      %>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!---Comment modal ended--->
+
         <!-- Profile Modal -->
         <div class="modal fade" id="profile-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-top">
@@ -309,6 +368,36 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <script src="js/myjs.js" type="text/javascript"></script>
+
+
+
+
+        <script>
+                                    $(document).ready(function () {
+                                        $('#commentForm').submit(function (event) {
+                                            event.preventDefault();
+
+                                            var formData = $(this).serialize();
+
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: 'CommentServlet',
+                                                data: formData,
+                                                success: function (response) {
+                                                    if (response.trim() === 'ok') {
+                                                        $('#commentInput').val(''); // Clear input field
+                                                    } else {
+                                                        console.log("Something went wrong. Server response: " + response);
+                                                    }
+                                                },
+                                                error: function (jqXHR, textStatus, errorThrown) {
+                                                    console.log('AJAX Error:', errorThrown);
+                                                }
+                                            });
+                                        });
+                                    });
+        </script>
+
         <script>
             $(document).ready(function () {
                 let editStatus = false;
