@@ -4,6 +4,7 @@
 <%@page import="com.tech.blog.entities.Posts"%>
 <%@page import="com.tech.blog.entities.Category"%>
 <%@page import="com.tech.blog.entities.Comments"%>
+<%@page import="com.tech.blog.entities.Message"%>
 <%@page import="com.tech.blog.helper.ConnectionProvider"%>
 <%@page import="com.tech.blog.dao.PostDao"%>
 <%@page import="com.tech.blog.dao.UserDao"%>
@@ -152,14 +153,18 @@
                                 <a href="#!" onclick="doUnLike(<%= pid %>, <%= uid %>)" class="btn btn-outline-light btn-sm">
                                     <i class="fa fa-thumbs-o-down"></i>
                                 </a>
+                                <%
+                                    CommentDao cDao = new CommentDao(ConnectionProvider.getConnection());
+                             %>
                                 <a href="#!" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#comment-modal">
                                     <i class="fa fa-commenting-o"></i>
-                                    <span> 20</span> <!-- Replace with actual comment count -->
+                                    <span> <%= cDao.countCommentOnPost(pid)%></span> <!-- Replace with actual comment count -->
                                 </a>
                             </div>
                         </div>
 
                         <div class="card-footer">
+                            
                             <form id="commentForm">
                                 <!-- Hidden fields for pid and uid -->
                                 <input type="hidden" name="pid" value="<%= pid %>">
@@ -170,7 +175,7 @@
                                     <label for="commentInput" class="form-label">Share your Thought</label>
                                     <input type="text" class="form-control" name="comment" id="commentInput" aria-describedby="commentHelp">
                                 </div>
-
+                                <div id="successMessage" class="mb-1" style="display: none;"></div>
                                 <!-- Submit button -->
                                 <button type="submit" id="submitComment" class="btn btn-outline-dark">Comment</button>
                             </form>
@@ -194,9 +199,7 @@
                     </div>
                     <div class="modal-body" id="commentsContainer">
                         <%
-                            CommentDao cDao = new CommentDao(ConnectionProvider.getConnection());
                             ArrayList<Comments> comments = cDao.getComments();
-
                             for (Comments c : comments) {
                       %>
                                     <div class="card mb-3" style="max-width: 440px;">
@@ -385,7 +388,9 @@
                                                 data: formData,
                                                 success: function (response) {
                                                     if (response.trim() === 'ok') {
-                                                        $('#commentInput').val(''); // Clear input field
+                                                        $('#successMessage').text('Comment submitted successfully!');
+                                                        $('#successMessage').fadeIn().delay(3000).fadeOut();
+                                                        $('#commentInput').val(''); 
                                                     } else {
                                                         console.log("Something went wrong. Server response: " + response);
                                                     }

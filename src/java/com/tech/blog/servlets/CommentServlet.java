@@ -2,6 +2,7 @@ package com.tech.blog.servlets;
 
 import com.tech.blog.dao.CommentDao;
 import com.tech.blog.dao.PostDao;
+import com.tech.blog.entities.Message;
 import com.tech.blog.entities.User;
 import com.tech.blog.helper.ConnectionProvider;
 
@@ -28,6 +29,10 @@ public class CommentServlet extends HttpServlet {
             CommentDao cd=new CommentDao(ConnectionProvider.getConnection());
             
             if(cd.insertComment(pid, uid, comment)){
+                Message msg=new Message("Comment added","success","alert-success");
+                HttpSession session=request.getSession();
+                session.setAttribute("msg",msg);
+                
                 out.println("ok");
             }
             

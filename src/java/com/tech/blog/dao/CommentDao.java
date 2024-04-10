@@ -58,4 +58,25 @@ public class CommentDao {
 
         return flag;
     }
+    
+    public int countCommentOnPost(int pid){
+        int comment=0;
+        String q="SELECT count(*) FROM postcomment WHERE pid=?";
+        
+        try{
+            PreparedStatement pstmt=con.prepareStatement(q);
+            pstmt.setInt(1,pid);
+            ResultSet set=pstmt.executeQuery();
+            
+            if(set.next()){
+                comment=set.getInt("count(*)");
+            }
+            
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        return comment;
+    }
 }
